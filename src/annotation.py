@@ -6,17 +6,18 @@ from _codecs import decode
 
 Lectures = [x for x in range(14, 26) if x != 22]
 AllLectures = [x for x in range(3, 26) if x != 22]
+PrefrenceLectures = [3, 4] + [x for x in range(10, 26) if x != 22]
 
 datadir = "../data/"
 anotators = ['Youngmin', 'Trevor']
-summarization_methods = ['Extractive', 'Abstract', 'Phrase']
+summarization_methods = ['Phrase', 'Abstract', 'Extractive']
 
 def get_name(lec, anotator):
     return anotator + '_IE256_Lecture_' + str(lec) + '_Completed'
-
-def generate_all_files(datadir, extension, anotators=anotators):
+    
+def generate_all_files(datadir, extension, anotators=anotators, lectures = AllLectures):
     for annotator in anotators:
-        for lec in AllLectures:
+        for lec in lectures:
             filename = datadir + annotator + '_IE256_Lecture_' + str(lec) + '_Completed' + extension
             assert(fio.IsExist(filename))
             
@@ -177,6 +178,9 @@ class Task:
         self.task_names = value
     
     def get_task_names(self):
+        self.task_names = []
+        for task in self.tasks:
+            self.task_names.append(task['task_name'])
         return self.task_names 
     
     def extract_task_anntation(self):
@@ -302,7 +306,7 @@ class Task:
            task['prompt'] = 0 if i < 3 else 1
            task['response'] = 0 if i < 3 else 1
            
-           if i == 0 or i==2:
+           if i == 0 or i==3:
                task['start_time'] = self.start_time[(i+1)/3]
            else:
                task['start_time'] = self.finish_time[i-1] 
@@ -329,6 +333,7 @@ class Task:
             json.dump(self.data, fout, indent=2, encoding='utf-8')
     
     def loadjson(self, jsonfile):
+        self.filename = jsonfile
         with open(jsonfile, 'r') as fin:
             self.data = json.load(fin, encoding='utf-8')
         
@@ -420,14 +425,16 @@ class Task:
             responses = self.raw_response[task['response']]
             
             for sentence_id in task['summary']:
-                student_response = responses[int(sentence_id)]
-                assert(int(sentence_id) == student_response['sentence_id'])
+                student_response = responses[int(sentence_id)-1]
+                if sentence_id != student_response['sentence_id']:
+                    print self.filename, sentence_id, student_response, 
+                assert(sentence_id == student_response['sentence_id'])
                 sentence = student_response['response']
                 summaries.append(sentence)
         elif task['task_name'] == 'Abstract':
             summaries = task['summary']
             
-        elif ['task_name'] == 'Phrase':
+        elif task['task_name'] == 'Phrase':
             for rank, phrase, coverage in task['summary'][1:]:
                 summaries.append(phrase)
                 
@@ -443,17 +450,50 @@ class Task:
         
         self.summary_length = N
         return N
+    
+    def get_task_times(self):
+        import util
+
+        N = [0]*len(self.tasks)
+        for i, task in enumerate(self.tasks):
+            
+            dt = util.datatime2seconds(util.str2dt(task['finish_time'])) - \
+                util.datatime2seconds(util.str2dt(task['start_time']))
+            
+            if dt < 0:
+                print self.filename
+                
+            N[i] = dt
+        
+        self.task_times = N
+        return N
+    
+    def get_preference(self):
+        return self.preference
+    def sort_by_name(self, unsorted):
+        assert(len(unsorted) == len(summarization_methods) or len(unsorted) == len(summarization_methods)*2)
+        
+        sorted = [0]* len(unsorted) 
+        task_names = self.get_task_names()
+        
+        for i, x in enumerate(unsorted):
+            index = summarization_methods.index(task_names[i])
+            sorted[index + i/3*3] = x
+            
+        return sorted
         
 if __name__ == '__main__':
     
     task = Task()
-    task.load("../data/text/Trevor_IE256_Lecture_14_Completed.txt")
     
-    #task.save2json("../data/json/Trevor_IE256_Lecture_14_Completed.json")
     task.loadjson("../data/json/Trevor_IE256_Lecture_14_Completed.json")
     #print task.normalize("<probability of making mistake><2> is a <little><1> confusing")
     
     #print task.get_number_of_sentences()
     #print task.get_students()
     #print task.get_number_of_words()
-    print task.get_summary_text(task.tasks[0])
+    print task.get_task_times()
+    print summarization_methods
+    print task.sort_by_name(task.get_task_times())
+    
+    
