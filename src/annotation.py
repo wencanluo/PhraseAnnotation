@@ -10,6 +10,8 @@ PrefrenceLectures = [3, 4] + [x for x in range(10, 26) if x != 22]
 
 datadir = "../data/"
 anotators = ['Youngmin', 'Trevor']
+anotator_dict = {'Youngmin':0, 
+                 'Trevor':1}
 summarization_methods = ['Phrase', 'Abstract', 'Extractive']
 
 def get_name(lec, anotator):
@@ -470,6 +472,7 @@ class Task:
     
     def get_preference(self):
         return self.preference
+    
     def sort_by_name(self, unsorted):
         assert(len(unsorted) == len(summarization_methods) or len(unsorted) == len(summarization_methods)*2)
         

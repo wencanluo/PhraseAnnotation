@@ -72,7 +72,7 @@ def get_preference():
     
     fio.PrintDict(preference[0])
     fio.PrintDict(preference[1])
-    
+        
 def get_statistics():
     #print "total lectures:", len(AllLectures)
     #print "total lectures that have phrase annotation:", len(Lectures)
