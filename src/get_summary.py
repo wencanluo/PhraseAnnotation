@@ -54,7 +54,32 @@ def get_phrase_reference_summary_abstract(outputs = None):
                     summaries = NLTKWrapper.splitSentence(sub_task["summary"][0])
                     
                     fio.SaveList(summaries, summary_filename)
+
+def get_phrase_reference_summary_extractive(outputs = None):
+    for output in outputs:
+        for doc, lec, annotator in generate_all_files(datadir + 'json/', '.json', anotators = ['Youngmin', 'Trevor']):
+            print doc
+            
+            task = Task()
+            task.loadjson(doc)
+            
+            sub_tasks = task.get_tasks()
+            
+            for sub_task in sub_tasks:
+                if sub_task["task_name"] == "Extractive":
+                    if sub_task['prompt'] == 0: #POI
+                        type = 'q1'
+                    else: 
+                        type = 'q2'
                     
+                    summary_filename = os.path.join(output, str(lec), type+'.ref.' + str(anotator_dict[annotator])) 
+                    #summary_filename = os.path.join(output, str(lec), type+'.ref.summary') 
+                    
+                    print summary_filename
+                    
+                    summaries = NLTKWrapper.splitSentence(sub_task["summary"][0])
+                    
+                    fio.SaveList(summaries, summary_filename)                    
 
 if __name__ == '__main__':
 #     mead_datadir = "../../Fall2014/summarization/mead/data/"
@@ -69,8 +94,8 @@ if __name__ == '__main__':
 #                ]
     
     outdirs = ['../../AbstractPhraseSummarization/data/IE256/ILP_Baseline_Sentence/',
-               #'../../AbstractPhraseSummarization/data/IE256/ILP_Sentence_MC/',
-               #'../../AbstractPhraseSummarization/data/IE256/ILP_Sentence_Supervised_FeatureWeightingAveragePerceptron/',
+               '../../AbstractPhraseSummarization/data/IE256/ILP_Sentence_MC/',
+               '../../AbstractPhraseSummarization/data/IE256/ILP_Sentence_Supervised_FeatureWeightingAveragePerceptron/',
                ]
     get_phrase_reference_summary_abstract(outdirs)
     

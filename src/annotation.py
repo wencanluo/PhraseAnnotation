@@ -385,7 +385,7 @@ class Task:
                                        'phrase': phrase,
                                        })
             
-            self.phrase_annotation.append(dict)    
+            self.phrase_annotation.append(dict)
     
     def get_number_of_sentences(self):
         N = [0]*len(self.raw_response)
