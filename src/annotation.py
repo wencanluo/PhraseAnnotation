@@ -14,6 +14,14 @@ anotator_dict = {'Youngmin':0,
                  'Trevor':1}
 summarization_methods = ['Phrase', 'Abstract', 'Extractive']
 
+prompt_dict = {'q1':0,
+               'q2':1,
+               '0':0,
+               '1':1,
+               'POI':0,
+               'MP':1,
+               }
+
 def get_name(lec, anotator):
     return anotator + '_IE256_Lecture_' + str(lec) + '_Completed'
     
@@ -364,6 +372,25 @@ class Task:
                 raw_response.append(dict)
             self.raw_response.append(raw_response)
     
+    def get_phrase_summary(self, prompt, withhead=False):
+        sub_tasks = self.get_tasks()
+        
+        for sub_task in sub_tasks:
+            if sub_task["task_name"] == "Phrase":
+                if sub_task['prompt'] == prompt_dict[prompt]: #POI
+                    if withhead:
+                        return sub_task["summary"][0], sub_task["summary"][1:]
+                    else:
+                        return sub_task["summary"][1:]
+        
+        if withhead:
+            return None, None
+        else:
+            return None
+    
+    def get_phrase_annotation(self, prompt):
+        return self.phrase_annotation[prompt_dict[prompt]]
+        
     def extract_phrase_annotation(self):
         regex = re.compile("<(.*?)><(\d)>")
         
