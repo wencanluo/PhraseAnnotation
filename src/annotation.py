@@ -3,6 +3,7 @@ import fio
 import re
 import json
 from _codecs import decode
+from numpy import rank
 
 Lectures = [x for x in range(14, 26) if x != 22]
 AllLectures = [x for x in range(3, 26) if x != 22]
@@ -372,6 +373,23 @@ class Task:
                 raw_response.append(dict)
             self.raw_response.append(raw_response)
     
+    def get_phrase_summary_student_coverage(self, prompt):
+        phrases = self.get_phrase_summary(prompt)
+        
+        pattern = re.compile('<(\d+)>')
+        dict = {}
+        for phrase in phrases:
+            rank, text, student_number = phrase
+            print phrase
+            
+            g = re.search(pattern, rank)
+            
+            rank = g.group(1)
+            
+            dict[rank] = int(student_number)
+            
+        return dict
+        
     def get_phrase_summary(self, prompt, withhead=False):
         sub_tasks = self.get_tasks()
         
