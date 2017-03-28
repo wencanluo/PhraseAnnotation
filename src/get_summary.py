@@ -120,9 +120,10 @@ def get_phrase_reference_summary_extractive(outputs = None):
         print numpy.median(counts)      
 
 if __name__ == '__main__':
-    mead_datadir = "../../Fall2014/summarization/mead/data/IE256_C16/"
-    
+    #mead_datadir = "../../Fall2014/summarization/mead/data/IE256_C16/"
     IE256_datadir = "../../AbstractPhraseSummarization/data/IE256/"
+    
+    mead_datadir = "../../Fall2014/summarization/mead/data/IE256_C16/"
     outputs =  [
                 #mead_datadir + 'Mead',
                 #mead_datadir + 'PhraseMead',
